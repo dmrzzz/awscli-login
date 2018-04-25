@@ -8,9 +8,9 @@ OBJS := $(patsubst %.py,%.pyc,$(SRCS))
 VENV := venv
 HTML = htmlcov/index.html
 
-.PHONY: all install test clean test-all docs
+.PHONY: all install test clean test-all docs coverage doctest
 
-all: build test html
+all: build test docs doctest coverage
 
 install: build
 	pip install -e .
@@ -33,12 +33,12 @@ test: .report
 	@coverage run setup.py test || rm $@
 #	@coverage combine
 
-html: $(HTML)
+coverage: $(HTML)
 
 docs: $(SRCS) $(TSTS)
 	make -C docs html
 
-doctest:
+doctest: $(SRCS) $(TSTS)
 	make -C docs doctest
 
 $(HTML): .coverage
