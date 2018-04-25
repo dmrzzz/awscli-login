@@ -70,27 +70,37 @@ class SDGTestCase(unittest.TestCase):
             AssertionError
 
         Examples:
+            Consider the following simple class:
+
             >>> class Coordinates:
             ...     x = 0
             ...     y = 0
             ...
             >>> center = Coordinates()
+
+            A simple passing test is the following:
+
+            >>> self.assertHasAttr(center, 'x', 0)
+
+            The following are various failing tests and the error's
+            they raise:
+
             >>> self.assertHasAttr(center, 'foo', 'bar')
             Traceback (most recent call last):
                 ...
             AssertionError: Coordinates object does not have attr: foo
+
             >>> self.assertHasAttr(center, 'x', 'bar')
             Traceback (most recent call last):
                 ...
             AssertionError: Attribute x has unexpected type <class 'int'>
             Expected <class 'str'> on Coordinates object!
+
             >>> self.assertHasAttr(center, 'x', 1)
             Traceback (most recent call last):
-                :83
                 ...
             AssertionError: Attribute x has unexpected value 0
             Expected 1 on Coordinates object!
-            >>> self.assertHasAttr(center, 'x', 0)
         """
         error = SDGTestCase._assertHasAttr(obj, attr, evalue)
 
@@ -114,26 +124,37 @@ class SDGTestCase(unittest.TestCase):
             AssertionError
 
         Examples:
+            Consider the following simple class:
+
             >>> class Coordinates:
             ...     x = 0
             ...     y = 0
             ...
             >>> center = Coordinates()
+
+            A simple passing test is the following:
+
+            >>> self.assertHasAttrs(center, x=0, y=0)
+
+            The following are various failing tests and the error's
+            they raise:
+
             >>> self.assertHasAttrs(center, foo='bar', x=0, y=0)
             Traceback (most recent call last):
                 ...
             AssertionError: Coordinates object does not have attr: foo
+
             >>> self.assertHasAttrs(center, x='bar', y='foo')
             Traceback (most recent call last):
                 ...
             AssertionError: Attribute x has unexpected type <class 'int'>
             Expected <class 'str'> on Coordinates object!
+
             >>> self.assertHasAttrs(center, x=1, y=0)
             Traceback (most recent call last):
                 ...
             AssertionError: Attribute x has unexpected value 0
             Expected 1 on Coordinates object!
-            >>> self.assertHasAttrs(center, x=0, y=0)
         """
         errors: List[str] = []
 
