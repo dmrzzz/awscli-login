@@ -1,7 +1,7 @@
 """ Tests for profile.update the backend for aws configure login """
-from os.path import getmtime, relpath
-from time import sleep
-from typing import Any, Dict
+# from os.path import getmtime, relpath
+# from time import sleep
+from typing import Any
 from unittest.mock import patch
 
 from .base import ProfileBase
@@ -9,43 +9,32 @@ from .util import user_input
 
 
 class UpdateProfileBase(ProfileBase):
-    expected_attr_vals: Dict[str, Any] = {}
 
-    def _test_profile_update(self, no_change=False) -> None:
+    def _test_profile_update(self, no_change=False, **kwargs: Any) -> None:
         """ Simulate user configuration of default profile. """
         self.Profile()
-        self.usr_input = user_input(self.profile, self.expected_attr_vals)
+        usr_input = user_input(self.profile, kwargs)
 
-        patcher = patch(
-            'builtins.input',
-            side_effect=self.usr_input,
-        )
-        self.mock = patcher.start()
-        self.addCleanup(patcher.stop)
-
-        # We must sleep otherwise old == new!
-        sleep(1)
-
-        old = getmtime(self.login_config_path)
-        self.profile.update()
-        new = getmtime(self.login_config_path)
+        @patch('builtins.input', side_effect=usr_input)
+        def profileUpdate(mock):
+            self.profile.update()
 
         if no_change:
-            self.assertEqual(
-                new, old, 'Error: file %s was touched!' %
-                relpath(self.login_config_path, self.tmpd.name)
+            self.assertTmpFileNotChangedBy(
+                self.login_config_path,
+                profileUpdate,
             )
         else:
-            self.assertGreater(
-                new, old, 'Error: file %s was not touched!' %
-                relpath(self.login_config_path, self.tmpd.name)
+            self.assertTmpFileChangedBy(
+                self.login_config_path,
+                profileUpdate,
             )
 
         self.profile.reload()
         try:
-            self.assertProfileHasAttrs(**self.expected_attr_vals)
+            self.assertProfileHasAttrs(**kwargs)
         except AssertionError as e:
-            mesg = "\n\nUser input: " + ', '.join(self.usr_input) + '\n'
+            mesg = "\n\nUser input: " + ', '.join(usr_input) + '\n'
             mesg += "\nConfig file on disk: \n"
             with open(self.profile.config_file, 'r') as f:
                 mesg += f.read()
@@ -56,13 +45,6 @@ class UpdateProfileBase(ProfileBase):
 
 class UpdateDefaultProfileTest(UpdateProfileBase):
     """ Test updating the default profile configuration """
-    expected_attr_vals = {
-        "ecp_endpoint_url": 'url2',
-        "username": 'netid2',
-        "enable_keyring": False,
-        "role_arn": "arn:aws:iam::account-id:role/role-name2",
-        "factor": 'auto',
-    }
 
     def setUp(self) -> None:
         super().setUp()
@@ -76,16 +58,17 @@ factor = push
     """
 
     def test_profile_update(self) -> None:
-        """ Simulate user configuration of default profile. """
-        self._test_profile_update()
+        """Simulate user configuration of default profile. """
+        self._test_profile_update(
+            ecp_endpoint_url='url2',
+            username='netid2',
+            enable_keyring=False,
+            role_arn="arn:aws:iam::account-id:role/role-name2",
+            factor='auto',
+        )
 
-
-class UpdateDefaultProfileNoChangeTest(UpdateDefaultProfileTest):
-    """ Test making no changes with profile.update to default profile. """
-    expected_attr_vals: Dict[str, Any] = {}
-
-    def test_profile_update(self) -> None:
-        """ Simulate user making no changes with configuration tool. """
+    def test_profile_update_no_change(self) -> None:
+        """Simulate user making no changes with configuration tool. """
         self._test_profile_update(no_change=True)
 
 
@@ -100,5 +83,5 @@ class UpdateNonDefaultProfileTest(UpdateDefaultProfileTest):
         )
 
     def test_profile_update(self) -> None:
-        """ Simulate user configuration of non-default profile. """
-        self._test_profile_update()
+        """ Simulate user making no changes to non-default profile. """
+        self._test_profile_update(no_change=True)

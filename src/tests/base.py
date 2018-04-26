@@ -3,14 +3,14 @@ import unittest
 from os import environ, makedirs, path, unlink, walk
 from os.path import dirname, relpath, join
 from tempfile import TemporaryDirectory
-from typing import Any, List
+from typing import Any, Callable, List
 from unittest.mock import patch
 
 from wurlitzer import pipes
 
 from awscli_login.config import CONFIG_FILE
 
-from .util import exec_awscli, tree
+from .util import exec_awscli, isFileChangedBy, isFileTouchedBy, tree
 from .exceptions import NotRelativePathError
 
 
@@ -280,6 +280,74 @@ class TempDir(SDGTestCase):
 
         errors += '\n-----------------------------------------------\n'
         raise AssertionError(errors)
+
+    def assertTmpFileChangedBy(self, filename: str, func: Callable,
+                               *args, **kwargs) -> None:
+        """Asserts file is changed by a function.
+
+        Args:
+            filename: The file to test.
+            func: The function to call.
+            *args: positional arguments to pass to `func`.
+            **kwargs: keyword arguments to pass to `func`.
+
+        Raises:
+            AssertionError if file is not changed.
+        """
+        if not isFileChangedBy(filename, func, *args, **kwargs):
+            raise AssertionError('File was not changed: %s' %
+                                 relpath(filename, self.tmpd.name))
+
+    def assertTmpFileNotChangedBy(self, filename: str, func: Callable,
+                                  *args, **kwargs) -> None:
+        """Asserts file is not changed by a function.
+
+        Args:
+            filename: The file to test.
+            func: The function to call.
+            *args: positional arguments to pass to `func`.
+            **kwargs: keyword arguments to pass to `func`.
+
+        Raises:
+            AssertionError if file is changed.
+        """
+        if isFileChangedBy(filename, func, *args, **kwargs):
+            raise AssertionError('File was changed: %s' %
+                                 relpath(filename, self.tmpd.name))
+
+    def assertTmpFileTouchedBy(self, filename: str, func: Callable,
+                               *args, **kwargs) -> None:
+        """Asserts file is touched by a function.
+
+        Args:
+            filename: The file to test.
+            func: The function to call.
+            *args: positional arguments to pass to `func`.
+            **kwargs: keyword arguments to pass to `func`.
+
+        Raises:
+            AssertionError if file is not touched.
+        """
+        if not isFileTouchedBy(filename, func, *args, **kwargs):
+            raise AssertionError('File was not touched: %s' %
+                                 relpath(filename, self.tmpd.name))
+
+    def assertTmpFileNotTouchedBy(self, filename: str, func: Callable,
+                                  *args, **kwargs) -> None:
+        """Asserts file is not touched by a function.
+
+        Args:
+            filename: The file to test.
+            func: The function to call.
+            *args: positional arguments to pass to `func`.
+            **kwargs: keyword arguments to pass to `func`.
+
+        Raises:
+            AssertionError if file is touched.
+        """
+        if isFileTouchedBy(filename, func, *args, **kwargs):
+            raise AssertionError('File was touched: %s' %
+                                 relpath(filename, self.tmpd.name))
 
 
 class CleanAWSLoginEnvironment(TempDir):

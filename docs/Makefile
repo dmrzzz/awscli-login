@@ -22,13 +22,13 @@ html: build/html
 
 doctest: build/doctest/output.txt
 
-build/doctrees: $(DOCSRCS) $(TSTS) $(SRCS)
+$(APIDOC_BUILD_DIR): $(DOCSRCS) $(TSTS) $(SRCS)
 	$(SPHINXAPIDOC) -o $(APIDOC_BUILD_DIR) $(APIDOC_SOURCE_DIR)
 
-build/html: build/doctrees
+build/html: $(APIDOC_BUILD_DIR) $(DOCSRCS) $(TSTS) $(SRCS)
 	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-build/doctest/output.txt: build/doctrees
+build/doctest/output.txt: $(APIDOC_BUILD_DIR) $(DOCSRCS) $(TSTS) $(SRCS)
 	$(SPHINXBUILD) -M doctest "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 # This avoids the catch-all target below

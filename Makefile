@@ -66,3 +66,4 @@ clean:
 	rm -rf $(TPKG)/__pycache__ $(PKG)/__pycache__ $(TPKG)/config/__pycache__
 	rm -rf $(TPKG)/*.pyc  $(PKG)/*.pyc
 	rm -rf build dist venv src/*.egg-info .eggs
+	make -C docs clean
