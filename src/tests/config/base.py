@@ -1,6 +1,5 @@
 """ Base classes used for testing """
-from argparse import Namespace
-from typing import Any, Dict
+from typing import Any
 
 from awscli_login.config import Profile
 
@@ -16,21 +15,12 @@ class ProfileBase(CleanAWSLoginEnvironment):
     NOTA BENE: This class does NOT load self.profile and therefore is useful
     for testing failure conditions for Profile().
     """
-    # Optional input cli arguments
-    cli_args: Dict[str, Any] = {}
 
-    profile_name: str = 'default'
-    _session: MockSession
-    _args: Namespace
+    def Profile(self, profile: str='default', no_args: bool=False, **kwargs):
+        args = None if no_args else login_cli_args(**kwargs)
+        session = MockSession(profile)
 
-    def setUp(self) -> None:
-        super().setUp()
-
-        self._args = login_cli_args(**self.cli_args)
-        self._session = MockSession(self.profile_name)
-
-    def Profile(self):
-        self.profile = Profile(self._session, self._args)
+        self.profile = Profile(session, args)
         return self.profile
 
     def assertProfileHasAttr(self, attr: str, evalue: Any) -> None:
@@ -43,14 +33,3 @@ class ProfileBase(CleanAWSLoginEnvironment):
         """ If called tests that profile has the expected
             attributes and values specifed in expected_attr_vals. """
         self.assertHasAttrs(self.profile, **kwargs)
-
-
-class ProfileNoArgsBase(ProfileBase):
-    """
-    Like ProfileBase but without the ability to set Args.
-    """
-    profile: Profile
-
-    def Profile(self):
-        self.profile = Profile(self._session, None)
-        return self.profile

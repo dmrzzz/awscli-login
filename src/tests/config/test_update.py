@@ -12,7 +12,6 @@ class UpdateProfileBase(ProfileBase):
 
     def _test_profile_update(self, no_change=False, **kwargs: Any) -> None:
         """ Simulate user configuration of default profile. """
-        self.Profile()
         usr_input = user_input(self.profile, kwargs)
 
         @patch('builtins.input', side_effect=usr_input)
@@ -59,6 +58,7 @@ factor = push
 
     def test_profile_update(self) -> None:
         """Simulate user configuration of default profile. """
+        self.Profile()
         self._test_profile_update(
             ecp_endpoint_url='url2',
             username='netid2',
@@ -69,19 +69,31 @@ factor = push
 
     def test_profile_update_no_change(self) -> None:
         """Simulate user making no changes with configuration tool. """
+        self.Profile()
         self._test_profile_update(no_change=True)
 
-
-class UpdateNonDefaultProfileTest(UpdateDefaultProfileTest):
-    profile_name = "test"
-
-    def setUp(self):
-        super().setUp()
+    def test_non_default_profile_update(self) -> None:
+        """Simulate user configuration of default profile. """
         self.login_config = self.login_config.replace(
             'default',
-            self.profile_name
+            'test'
         )
 
-    def test_profile_update(self) -> None:
+        self.Profile('test')
+        self._test_profile_update(
+            ecp_endpoint_url='url2',
+            username='netid2',
+            enable_keyring=False,
+            role_arn="arn:aws:iam::account-id:role/role-name2",
+            factor='auto',
+        )
+
+    def test_non_default_profile_update_no_change(self) -> None:
         """ Simulate user making no changes to non-default profile. """
+        self.login_config = self.login_config.replace(
+            'default',
+            'test'
+        )
+
+        self.Profile('test')
         self._test_profile_update(no_change=True)
