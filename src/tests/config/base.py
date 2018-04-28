@@ -1,5 +1,6 @@
 """ Base classes used for testing """
 from typing import Any
+from unittest.mock import patch
 
 from awscli_login.config import Profile
 
@@ -33,3 +34,10 @@ class ProfileBase(CleanAWSLoginEnvironment):
         """ If called tests that profile has the expected
             attributes and values specifed in expected_attr_vals. """
         self.assertHasAttrs(self.profile, **kwargs)
+
+    def patcher(self, attr: str, target: Any, **kwargs) -> None:
+        patcher = patch(target, **kwargs)
+        self.addCleanup(patcher.stop)
+
+        setattr(self, attr, patcher.start())
+        self.addCleanup(delattr, self, attr)
