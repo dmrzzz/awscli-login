@@ -10,7 +10,8 @@ from .util import user_input
 
 class UpdateProfileBase(ProfileBase):
 
-    def _test_profile_update(self, no_change=False, **kwargs: Any) -> None:
+    def assertProfileHasAttrsAfterUpdate(self, no_change=False,
+                                         **kwargs: Any) -> None:
         """ Simulate user configuration of default profile. """
         usr_input = user_input(self.profile, kwargs)
 
@@ -59,7 +60,7 @@ factor = push
     def test_profile_update(self) -> None:
         """Simulate user configuration of default profile. """
         self.Profile()
-        self._test_profile_update(
+        self.assertProfileHasAttrsAfterUpdate(
             ecp_endpoint_url='url2',
             username='netid2',
             enable_keyring=False,
@@ -70,7 +71,7 @@ factor = push
     def test_profile_update_no_change(self) -> None:
         """Simulate user making no changes with configuration tool. """
         self.Profile()
-        self._test_profile_update(no_change=True)
+        self.assertProfileHasAttrsAfterUpdate(no_change=True)
 
     def test_non_default_profile_update(self) -> None:
         """Simulate user configuration of default profile. """
@@ -80,7 +81,7 @@ factor = push
         )
 
         self.Profile('test')
-        self._test_profile_update(
+        self.assertProfileHasAttrsAfterUpdate(
             ecp_endpoint_url='url2',
             username='netid2',
             enable_keyring=False,
@@ -96,4 +97,4 @@ factor = push
         )
 
         self.Profile('test')
-        self._test_profile_update(no_change=True)
+        self.assertProfileHasAttrsAfterUpdate(no_change=True)
