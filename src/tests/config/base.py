@@ -35,9 +35,8 @@ class ProfileBase(CleanAWSLoginEnvironment):
             attributes and values specifed in expected_attr_vals. """
         self.assertHasAttrs(self.profile, **kwargs)
 
-    def patcher(self, attr: str, target: Any, **kwargs) -> None:
+    def patcher(self, target: Any, **kwargs):  # TODO FIXME
         patcher = patch(target, **kwargs)
         self.addCleanup(patcher.stop)
 
-        setattr(self, attr, patcher.start())
-        self.addCleanup(delattr, self, attr)
+        return patcher.start()
