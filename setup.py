@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 
+from io import open
 from os import path
 
 here = path.abspath(path.dirname(__file__))
@@ -43,12 +44,13 @@ setup(
     ],
     extras_require={
         'test': [
-            'coverage',
-            'wurlitzer',
-            'tblib',
             'Sphinx',
-            'sphinx_rtd_theme',
+            'coverage',
             'sphinx-autodoc-typehints',
+            'sphinx_rtd_theme',
+            'strip-hints',
+            'tblib',
+            'wurlitzer',
         ],
     },
     test_suite="tests",

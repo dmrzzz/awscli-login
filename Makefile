@@ -1,4 +1,5 @@
 PACKAGE_NAME := awscli-login
+PY_VERSION := $(shell python --version 2>&1 )
 
 PKG  := src/awscli_login
 TPKG := src/tests
@@ -19,7 +20,11 @@ build: $(OBJS) setup.py
 	python setup.py build
 
 %.pyc: %.py
-	python -m compileall -b $<
+    ifneq (,$(findstring Python 2,$(PY_VERSION)))
+	  #  python -m compileall $<
+    else
+	    python -m compileall -b $<
+    endif
 
 test: .report
 	@cat $?
