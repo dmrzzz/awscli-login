@@ -1,3 +1,4 @@
+import os
 import logging
 
 from datetime import datetime, timezone
@@ -136,3 +137,17 @@ def nap(expires: datetime, percent: float) -> None:
 
     logger.info('Going to sleep for %d seconds.' % sleep_for)
     sleep(sleep_for)
+
+
+def secure_touch(path):
+    """Sets a file's permissions to read/write by owner only.
+
+    Sets the file `path`'s mode to 600. The file `path` is created
+    if it does not exist.
+
+    Args:
+        path - A path to a file.
+    """
+    fd = os.open(path, os.O_CREAT | os.O_RDONLY, mode=0o600)
+    os.fchmod(fd, mode=0o600)
+    os.close(fd)

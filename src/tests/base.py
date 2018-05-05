@@ -1,6 +1,8 @@
+import os
+import stat
 import unittest
 
-from os import environ, makedirs, path, unlink, walk
+from os import environ, makedirs, path, walk, unlink
 from os.path import dirname, relpath, join
 from tempfile import TemporaryDirectory
 from typing import Any, Callable, List
@@ -13,6 +15,30 @@ from awscli_login.config import CONFIG_FILE
 from .util import exec_awscli, isFileChangedBy, isFileTouchedBy, tree
 from .exceptions import NotRelativePathError
 
+PERMISSIONS = [
+    ('r', 'read'),
+    ('w', 'write'),
+    ('x', 'execute')
+]
+
+FLAGS = {
+    'Owner': {
+        'r': stat.S_IRUSR,
+        'w': stat.S_IWUSR,
+        'x': stat.S_IXUSR,
+    },
+    'Group': {
+        'r': stat.S_IRGRP,
+        'w': stat.S_IWGRP,
+        'x': stat.S_IXGRP,
+    },
+    'Others': {
+        'r': stat.S_IRGRP,
+        'w': stat.S_IWGRP,
+        'x': stat.S_IWGRP,
+    },
+}
+
 
 class SDGTestCase(unittest.TestCase):
     """Adds additional convenience assert statements.
@@ -22,6 +48,30 @@ class SDGTestCase(unittest.TestCase):
         from tests.base import SDGTestCase
         self = SDGTestCase
     """
+
+    @staticmethod
+    def assertHasFilePerms(path: str, owner: str='', group: str='',
+                           others: str='') -> None:
+        info = os.stat(path)
+
+        users = [
+            ('Owner', owner),
+            ('Group', group),
+            ('Others', others),
+        ]
+
+        for user, perms in users:
+            for p, perm in PERMISSIONS:
+                hasPerm = bool(info.st_mode & FLAGS[user][p])
+
+                if p in perms and not hasPerm:
+                    raise AssertionError(
+                        '%s does not have %s permission!' % (user, perm)
+                    )
+                elif p not in perms and hasPerm:
+                    raise AssertionError(
+                        '%s has %s permission!' % (user, perm)
+                    )
 
     @staticmethod
     def _assertHasAttr(obj: object, attr: str, evalue: Any) -> str:

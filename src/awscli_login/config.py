@@ -18,13 +18,14 @@ from keyring import get_password, set_password
 
 from botocore.session import Session
 from awscli.customizations.configure.writer import ConfigFileWriter
-from awscli_login.typing import Creds
 from awscli_login.exceptions import (
     AlreadyLoggedIn,
     InvalidFactor,
     ProfileMissingArgs,
     ProfileNotFound,
 )
+from awscli_login.typing import Creds
+from awscli_login.util import secure_touch
 
 CONFIG_DIR = '.aws-login'
 CONFIG_FILE = path.join(CONFIG_DIR, 'config')
@@ -98,9 +99,9 @@ class Profile:
         self.home = home
         self.config_file = path.join(self.home, CONFIG_FILE)
 
-        makedirs(path.join(home, CONFIG_DIR), exist_ok=True)
-        makedirs(path.join(home, LOG_DIR), exist_ok=True)
-        makedirs(path.join(home, JAR_DIR), exist_ok=True)
+        makedirs(path.join(home, CONFIG_DIR), mode=0o700, exist_ok=True)
+        makedirs(path.join(home, LOG_DIR), mode=0o700, exist_ok=True)
+        makedirs(path.join(home, JAR_DIR), mode=0o700, exist_ok=True)
 
         self.pidfile = path.join(home, CONFIG_DIR, self.name + '.pid')
         self.logfile = path.join(home, LOG_DIR, self.name + '.log')
@@ -299,6 +300,7 @@ class Profile:
             if self.name != 'default':
                 new_values['__section__'] = self.name
 
+            secure_touch(self.config_file)
             writer.update_config(new_values, self.config_file)
 
     def reload(self, validate: bool = True):
