@@ -21,12 +21,12 @@ FALSE = ("no", "false", "f", "0")
 def sort_roles(role_arns: List[Role]) \
                -> List[Tuple[str, List[Tuple[int, str]]]]:
     """ TODO """
-    accounts: Dict[str, List[Tuple[int, str]]] = {}
-    r: List[Tuple[str, List[Tuple[int, str]]]] = []
+    accounts = {}
+    r = []
 
     for index, arn in enumerate(role_arns):
-        acct: str = arn[1].split(':')[4]
-        role: str = arn[1].split(':')[5].split('/')[1]
+        acct = arn[1].split(':')[4]
+        role = arn[1].split(':')[5].split('/')[1]
 
         role_list = accounts.get(acct, list())
         role_list.append((index, role))
@@ -43,7 +43,7 @@ def get_selection(role_arns: List[Role]) -> Role:
     """ Interactively prompts the user for a role selection. """
     i = 0
     n = len(role_arns)
-    select: Dict[int, int] = {}
+    select = {}
 
     if n > 1:
         print("Please choose the role you would like to assume:")

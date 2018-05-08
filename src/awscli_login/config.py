@@ -45,26 +45,26 @@ class Profile:
     This class reads the current login profile from ~/.aws-login/config
     """
     # Public vars
-    name: str  # Profile name
+    #name: str  # Profile name
 
     # Required args from profile
-    ecp_endpoint_url: str
+    #ecp_endpoint_url: str
 
     # Optional args from profile
-    username: str
-    password: str
-    role_arn: str
-    enable_keyring: bool
-    factor: str
-    passcode: str
-    verbose: str
-    refresh: int
+    #username: str
+    #password: str
+    #role_arn: str
+    #enable_keyring: bool
+    #factor: str
+    #passcode: str
+    #verbose: str
+    #refresh: int
 
-    config_file: str
+    #config_file: str
     # Private vars
-    _args: Namespace
-    _required: FrozenSet[str] = frozenset(['ecp_endpoint_url'])
-    _optional: Dict[str, Any] = {
+    #_args: Namespace
+    _required = frozenset(['ecp_endpoint_url'])
+    _optional = {
             'username': None,
             'password': None,
             'role_arn': None,
@@ -76,7 +76,7 @@ class Profile:
             'force_refresh': False,
     }
 
-    _config_options: Dict[str, str] = OrderedDict(
+    _config_options = OrderedDict(
         {
             'ecp_endpoint_url': 'ECP Endpoint URL',
             'username': 'Username',
@@ -87,7 +87,7 @@ class Profile:
     )
 
     # Extra override args from command line
-    _override: Dict[str, str] = {
+    _override = {
         'enable_keyring': 'ask_password',
     }
 
@@ -209,7 +209,6 @@ class Profile:
 
     def _set_opt_attrs(self, config: ConfigParser, validate: bool) -> None:
         """ Load optional args from profile [~/.aws-login/config]. """
-        value: Any
         section = self._get_profile(config, validate)
 
         for attr, default in self._optional.items():

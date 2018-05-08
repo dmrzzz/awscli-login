@@ -3,7 +3,7 @@ from .const import FACTORS
 
 
 class AWSCLILogin(Exception):
-    code: int = 1
+    code = 1
 
 
 class ConfigError(AWSCLILogin):

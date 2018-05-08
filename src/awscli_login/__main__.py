@@ -100,7 +100,6 @@ def error_handler(skip_args=True, validate=False):
     def decorator(f):
         @wraps(f)
         def wrapper(args: Namespace, session: Session):
-            exp: Exception
             code = ERROR_NONE
             sig = None
 
